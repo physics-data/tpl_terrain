@@ -10,10 +10,10 @@ fn kernel_mut([dx, dy]: [f64; 2], c: [f64; 2], epsilon: f64) -> [f64; 2] {
     let mat = [
         [
             -(4f64 * (epsilon * epsilon) * (dy * dy) - 2f64 * epsilon) * gaussian,
-            4f64 * (epsilon * epsilon) * gaussian,
+            4f64 * dx * dy * (epsilon * epsilon) * gaussian,
         ],
         [
-            4f64 * (epsilon * epsilon) * gaussian,
+            4f64 * dx * dy * (epsilon * epsilon) * gaussian,
             -(4f64 * (epsilon * epsilon) * (dx * dx) - 2f64 * epsilon) * gaussian,
         ],
     ];
@@ -87,7 +87,6 @@ fn rbf_grid_eval(_py: Python, m: &PyModule) -> PyResult<()> {
                 [*cs.get((i, 0)).unwrap(), *cs.get((i, 1)).unwrap()],
             ));
         }
-        println!("{:#?}", refs);
         
         let grid = eval_grid_impl(x_from, x_to, x_step, y_from, y_to, y_step, refs.as_slice(), epsilon);
         grid.into_pyarray(py)

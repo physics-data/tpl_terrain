@@ -7,6 +7,8 @@ import sys
 import math
 import numpy as np
 import rbf_grid_eval
+import matplotlib.pyplot as plt
+import gzip
 
 cnt = 0
 def div_free_rbf(coords, data, epsilon = 1):
@@ -20,10 +22,10 @@ def div_free_rbf(coords, data, epsilon = 1):
         return np.array([
             [
                 -(4 * (epsilon ** 2) * (y ** 2) - 2 * epsilon) * gaussian,
-                4 * (epsilon ** 2) * gaussian,
+                4 * x * y * (epsilon ** 2) * gaussian,
             ],
             [
-                4 * (epsilon ** 2) * gaussian,
+                4 * x * y * (epsilon ** 2) * gaussian,
                 -(4 * (epsilon ** 2) * (x ** 2) - 2 * epsilon) * gaussian,
             ],
         ])
@@ -41,10 +43,10 @@ def div_free_rbf(coords, data, epsilon = 1):
     return cs
 
 
-RESOLUTION = 0.0002
+RESOLUTION = 0.001
 
-lon_range = [116, 116.75]
-lat_range = [39.65, 40.4]
+lon_range = [116.0, 117.5]
+lat_range = [39.5, 41]
 
 def parse(fd):
     result = {}
@@ -86,8 +88,31 @@ if not vector_mode:
         lat_range[0]:lat_range[1]:RESOLUTION, 
         lon_range[0]:lon_range[1]:RESOLUTION, 
     ]
-    interpolated = griddata(coords, data_point, grid)
-    print(interpolated)
+    interpolated = griddata(np.array(coords), data_point, (grid[0], grid[1]), method='cubic')
+
+    (height, width) = interpolated.shape
+
+    SAMPLE_CNT = height
+    print(np.nanmax(interpolated))
+    print(np.nanmin(interpolated))
+    interpolated = np.fmax(0, np.nan_to_num(interpolated, copy = False))
+    downsampled = interpolated.reshape((SAMPLE_CNT, int(height / SAMPLE_CNT), SAMPLE_CNT, -1)).mean(axis=(1, 3))
+    pltgrid = np.mgrid[
+        lat_range[0]:lat_range[1]:(lat_range[1] - lat_range[0])/SAMPLE_CNT,
+        lon_range[0]:lon_range[1]:(lon_range[1] - lon_range[0])/SAMPLE_CNT,
+    ]
+    ctr = plt.contourf(pltgrid[0], pltgrid[1], downsampled, cmap='Blues')
+    plt.colorbar(ctr)
+    plt.savefig('precipitation.jpg')
+
+    with gzip.open('../precipitation.json.gz', 'wt', encoding="ascii") as output:
+        json.dump({
+            "metadata": {
+                "origin": [lat_range[0], lon_range[0]],
+                "pixel": [RESOLUTION, RESOLUTION],
+            },
+            "data": interpolated.tolist(),
+        }, output)
 else:
     epsilon = 100
     cs = div_free_rbf(coords, data_point, epsilon)
@@ -96,14 +121,26 @@ else:
         lon_range[0], lon_range[1], RESOLUTION, 
         np.array(coords), cs, epsilon
     )
-    print(interpolated)
+
+    (height, width, _) = interpolated.shape
     print(np.max(interpolated))
+
+    transposed = interpolated.transpose((2, 0, 1))
+    SAMPLE_CNT = 50
+    downsampled = transposed.reshape((2, SAMPLE_CNT, int(height / SAMPLE_CNT), SAMPLE_CNT, -1)).mean(axis=(2, 4))
+    pltgrid = np.mgrid[
+        lat_range[0]:lat_range[1]:(lat_range[1] - lat_range[0])/SAMPLE_CNT,
+        lon_range[0]:lon_range[1]:(lon_range[1] - lon_range[0])/SAMPLE_CNT,
+    ]
     
+    plt.quiver(pltgrid[0], pltgrid[1], downsampled[0], downsampled[1], scale=100)
+    plt.savefig('wind.jpg')
 
-# print(interpolated_flat)
-# shape = (2, height, width) if vector_mode else (height, width)
-# interpolated = interpolated_flat.T.reshape(shape)
-# if vector_mode:
-#     interpolated = np.transpose(interpolated, (1, 2, 0))
-# print(interpolated)
-
+    with gzip.open('../wind.json.gz', 'wt', encoding="ascii") as output:
+        json.dump({
+            "metadata": {
+                "origin": [lat_range[0], lon_range[0]],
+                "pixel": [RESOLUTION, RESOLUTION],
+            },
+            "data": interpolated.tolist(),
+        }, output)
