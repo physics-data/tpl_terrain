@@ -43,10 +43,10 @@ def div_free_rbf(coords, data, epsilon = 1):
     return cs
 
 
-RESOLUTION = 0.001
+RESOLUTION = 0.002
 
-lon_range = [116.0, 117.5]
-lat_range = [39.5, 41]
+lon_range = [114.5, 117.5]
+lat_range = [38.5, 41.5]
 
 def parse(fd):
     result = {}
@@ -101,7 +101,7 @@ if not vector_mode:
         lat_range[0]:lat_range[1]:(lat_range[1] - lat_range[0])/SAMPLE_CNT,
         lon_range[0]:lon_range[1]:(lon_range[1] - lon_range[0])/SAMPLE_CNT,
     ]
-    ctr = plt.contourf(pltgrid[0], pltgrid[1], downsampled, cmap='Blues')
+    ctr = plt.contourf(pltgrid[0], pltgrid[1], downsampled, cmap='Blues', levels=20)
     plt.colorbar(ctr)
     plt.savefig('precipitation.jpg')
 
@@ -114,7 +114,7 @@ if not vector_mode:
             "data": interpolated.tolist(),
         }, output)
 else:
-    epsilon = 100
+    epsilon = 50
     cs = div_free_rbf(coords, data_point, epsilon)
     interpolated = rbf_grid_eval.eval_grid(
         lat_range[0], lat_range[1], RESOLUTION, 
@@ -123,7 +123,8 @@ else:
     )
 
     (height, width, _) = interpolated.shape
-    print(np.max(interpolated))
+
+    print(np.max(np.abs(interpolated)))
 
     transposed = interpolated.transpose((2, 0, 1))
     SAMPLE_CNT = 50
@@ -144,3 +145,5 @@ else:
             },
             "data": interpolated.tolist(),
         }, output)
+
+
