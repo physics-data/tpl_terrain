@@ -1,2 +1,4 @@
-/terrain_raw
-/terrain.tif
+/*
+!/weather_raw
+!/fetch.sh
+!/.gitignore
