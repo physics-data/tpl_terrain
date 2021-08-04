@@ -1,10 +1,45 @@
 #!/usr/bin/env python3
 
-from scipy.interpolate import griddata
+from scipy.interpolate import griddata, RBFInterpolator, Rbf
+import scipy.linalg as linalg
 import json
 import sys
 import math
 import numpy as np
+import rbf_grid_eval
+
+cnt = 0
+def div_free_rbf(coords, data, epsilon = 1):
+    coords = np.array(coords)
+    def kernel(x1, x2, epsilon = 1):
+        delta = x2 - x1
+        x = delta[0]
+        y = delta[1]
+        gaussian = math.exp(- epsilon * (x ** 2 + y ** 2))
+
+        return np.array([
+            [
+                -(4 * (epsilon ** 2) * (y ** 2) - 2 * epsilon) * gaussian,
+                4 * (epsilon ** 2) * gaussian,
+            ],
+            [
+                4 * (epsilon ** 2) * gaussian,
+                -(4 * (epsilon ** 2) * (x ** 2) - 2 * epsilon) * gaussian,
+            ],
+        ])
+
+    # Solve equations
+    b = np.array(data).reshape(-1)
+    A = np.zeros((len(coords) * 2, len(coords) * 2), dtype="float64")
+    for idx, x in enumerate(coords):
+        for ridx, rx in enumerate(coords):
+            kn = kernel(x, rx, epsilon)
+            A[idx * 2:idx * 2 + 2, ridx * 2:ridx * 2 + 2] = kn
+    solved = linalg.solve(A, b)
+    cs = solved.reshape(2, -1).T
+
+    return cs
+
 
 RESOLUTION = 0.0002
 
@@ -45,20 +80,23 @@ for k, v in data.items():
     ])
     data_point.append(v)
 
-grid = np.mgrid[
-    lat_range[0]:lat_range[1]:RESOLUTION, 
-    lon_range[0]:lon_range[1]:RESOLUTION, 
-]
-flat = grid.reshape(2, -1).T
-(_, height, width) = grid.shape = grid.shape
-
 interpolated = None
 if not vector_mode:
-    interpolator = RBFInterpolator(coords, data_point)
-    interpolated = interpolator(flat).reshape((height, width))
+    grid = np.mgrid[
+        lat_range[0]:lat_range[1]:RESOLUTION, 
+        lon_range[0]:lon_range[1]:RESOLUTION, 
+    ]
+    interpolated = griddata(coords, data_point, grid)
+    print(interpolated)
 else:
-    # TODO: finish
-    pass
+    cs = div_free_rbf(coords, data_point)
+    interpolated = rbf_grid_eval.eval_grid(
+        lat_range[0], lat_range[1], RESOLUTION, 
+        lon_range[0], lon_range[1], RESOLUTION, 
+        np.array(coords), cs, 1
+    )
+    print(interpolated)
+    
 
 # print(interpolated_flat)
 # shape = (2, height, width) if vector_mode else (height, width)
@@ -66,3 +104,4 @@ else:
 # if vector_mode:
 #     interpolated = np.transpose(interpolated, (1, 2, 0))
 # print(interpolated)
+
