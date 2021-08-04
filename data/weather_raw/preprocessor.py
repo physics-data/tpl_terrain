@@ -73,7 +73,7 @@ data_point = []
 coords = []
 
 for k, v in data.items():
-    [lon_deg, lon_min, lat_deg, lat_min] = stations[k]
+    [lat_deg, lat_min, lon_deg, lon_min] = stations[k]
     coords.append([
         lat_deg + lat_min / 60,
         lon_deg + lon_min / 60,
@@ -89,13 +89,15 @@ if not vector_mode:
     interpolated = griddata(coords, data_point, grid)
     print(interpolated)
 else:
-    cs = div_free_rbf(coords, data_point)
+    epsilon = 100
+    cs = div_free_rbf(coords, data_point, epsilon)
     interpolated = rbf_grid_eval.eval_grid(
         lat_range[0], lat_range[1], RESOLUTION, 
         lon_range[0], lon_range[1], RESOLUTION, 
-        np.array(coords), cs, 1
+        np.array(coords), cs, epsilon
     )
     print(interpolated)
+    print(np.max(interpolated))
     
 
 # print(interpolated_flat)

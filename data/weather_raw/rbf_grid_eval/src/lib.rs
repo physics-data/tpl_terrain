@@ -87,6 +87,7 @@ fn rbf_grid_eval(_py: Python, m: &PyModule) -> PyResult<()> {
                 [*cs.get((i, 0)).unwrap(), *cs.get((i, 1)).unwrap()],
             ));
         }
+        println!("{:#?}", refs);
         
         let grid = eval_grid_impl(x_from, x_to, x_step, y_from, y_to, y_step, refs.as_slice(), epsilon);
         grid.into_pyarray(py)
