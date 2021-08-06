@@ -2,3 +2,4 @@
 !/weather_raw
 !/fetch.sh
 !/.gitignore
+!/checksums.sha256
