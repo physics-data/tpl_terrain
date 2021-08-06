@@ -57,3 +57,16 @@ o   ฅ(^•ﻌ•^)ฅ   ( o )    | ( o ) |
 数据来源于 NASA ASTER Global DEM v3 和中国气象局。数据具体来源和预处理过程见 `docs/data.md`。
 
 助教以 deadline 前 GitHub 上最后一次提交为准进行评测。
+
+## 数据来源
+
+风速、风向、降水、温度、气压：
+
+> 中国地面气象站逐小时观测资料
+> 中国气象局 国家气象信息中心
+
+高程数据：
+
+> ASTER Global Digital Elevation Model v3
+> NASA/METI/AIST/Japan Space Systems, and U.S./Japan ASTER Science Team
+> https://doi.org/10.5067/ASTER/ASTGTM.003
