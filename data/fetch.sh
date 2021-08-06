@@ -1,10 +1,7 @@
 #!/bin/bash
 
-BN=$(dirname $(readlink -f $0))
+BN=$(dirname $(readlink -f $0 || python3 -c "import sys,os;print(os.path.realpath(sys.argv[1]))" $0))
 cd $BN
-
-rm *.tif
-rm checksums.sha256
 
 wget https://lab.cs.tsinghua.edu.cn/physics-data/terrain/dataset.tar.gz -O - | tar -xzf - .
 sha256sum -c checksums.sha256
