@@ -1,0 +1,20 @@
+name: Automated judger
+on: [push]
+
+jobs:
+  execute:
+    runs-on: [self-hosted]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Check file existence
+        run: test -f ./plot.py
+      - name: Run judger
+        run: python3 ./plot.py
+      - name: Check output existence
+        run: test -f ./graph.jpg
+      - name: Upload graph
+        uses: actions/upload-artifact@v2
+        with:
+          name: graph
+          path: ./graph.jpg
