@@ -10,7 +10,6 @@ import rbf_grid_eval
 import matplotlib.pyplot as plt
 import gzip
 
-cnt = 0
 def div_free_rbf(coords, data, epsilon = 1):
     coords = np.array(coords)
     def kernel(x1, x2, epsilon = 1):
@@ -75,11 +74,7 @@ data_point = []
 coords = []
 
 for k, v in data.items():
-    [lat_deg, lat_min, lon_deg, lon_min] = stations[k]
-    coords.append([
-        lat_deg + lat_min / 60,
-        lon_deg + lon_min / 60,
-    ])
+    coords.append(stations[k])
     data_point.append(v)
 
 interpolated = None
