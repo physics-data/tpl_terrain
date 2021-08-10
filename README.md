@@ -30,6 +30,13 @@ o   ฅ(^•ﻌ•^)ฅ   ( o )    | ( o ) |
 
 地形和气候数据的分辨率和边界有所不同，你也许需要对数据进行一定处理，比如选定一个比数据集更稀疏网格，然后在坐标内取平均或最接近的点的值。
 
+你也许会对以下 Matplotlib 提供的绘图方法感兴趣：
+- [contour](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.contour.html) 和 [contourf](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.contourf.html)
+- [imshow](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html)
+- [quiver](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiver.html) 和 [quiverkey](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiverkey.html)
+- [streamplot](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.streamplot.html)
+- [colorbar](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html)
+
 绘图的比例、方向不做要求，但是方便你能一眼看出画的对不对，这是北京附近的每纬度:经度距离的近似值：
 
 ```
@@ -38,9 +45,17 @@ o   ฅ(^•ﻌ•^)ฅ   ( o )    | ( o ) |
 ```
 
 ## 数据格式、单位
+
 - 风速风向数据是一个二维向量场，单位是 m/s
 - 降水数据是一个二维标量场，单位是 mm/h
 - 地形数据是一个二维标量场，表示海拔，单位是 m
+
+所有数据中第一个维度都是纬度，第二个纬度都是经度：
+
+- 元数据中，原点和像素大小格式为 `(纬度, 经度)`
+- 数据集中，取一点的数据需要使用 `data[纬度方向下标][经度方向下标]`
+
+**注意**: 像素大小可能是负数，意味着沿这个方向下标增加，经度或者纬度降低。
 
 ## 样例与评测
 
@@ -57,19 +72,3 @@ o   ฅ(^•ﻌ•^)ฅ   ( o )    | ( o ) |
 数据来源于 NASA ASTER Global DEM v3 和中国气象局。数据具体来源和预处理过程见 `docs/data.md`。
 
 助教以 deadline 前 GitHub 上最后一次提交为准进行评测。
-
-## 数据来源
-
-风速、风向、降水、温度、气压：
-
-> 中国地面气象站逐小时观测资料
->
-> 中国气象局 国家气象信息中心
-
-高程数据：
-
-> ASTER Global Digital Elevation Model v3
->
-> NASA/METI/AIST/Japan Space Systems, and U.S./Japan ASTER Science Team
->
-> https://doi.org/10.5067/ASTER/ASTGTM.003
