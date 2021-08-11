@@ -12,9 +12,9 @@ jobs:
       - name: Run judger
         run: python3 ./plot.py
       - name: Check output existence
-        run: test -f ./graph.jpg
+        run: test -f ./graph.pdf
       - name: Upload graph
         uses: actions/upload-artifact@v2
         with:
           name: graph
-          path: ./graph.jpg
+          path: ./graph.pdf
