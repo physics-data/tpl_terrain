@@ -72,3 +72,7 @@ o   ฅ(^•ﻌ•^)ฅ   ( o )    | ( o ) |
 数据来源于 NASA ASTER Global DEM v3 和中国气象局。数据具体来源和预处理过程见 `docs/data.md`。
 
 助教以 deadline 前 GitHub 上最后一次提交为准进行评测。
+
+## For Example
+
+![Example](terrain-example.jpg)
