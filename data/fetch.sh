@@ -1,9 +1,8 @@
 #!/bin/bash
 
-SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
-BN="$(dirname "$SCRIPT_PATH")" || "$(dirname python3 -c 'import sys,os;print(os.path.realpath(sys.argv[1]))' "$SCRIPT_PATH")"
-echo $BN
-cd "$BN"
+# https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd "${SCRIPT_DIR}"
 
 wget https://lab.cs.tsinghua.edu.cn/physics-data/terrain/dataset.tar.gz -O - | tar -xzf -
 sha256sum -c checksums.sha256
